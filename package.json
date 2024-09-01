@@ -32,7 +32,8 @@
     "rehype-katex": "^7.0.1",
     "remark-gfm": "^4.0.0",
     "tailwind-merge": "^2.5.2",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "node-loader": "^2.0.0",
   },
   "devDependencies": {
     "@types/node": "^20",
