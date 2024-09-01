@@ -1,40 +1,26 @@
 import pgvector from "pgvector";
-import { db } from "@/lib/db";
+import { HuggingFaceTransformersEmbeddings } from "@langchain/community/embeddings/hf_transformers";
+// import { db } from "@/lib/db";
 import chunkText from "@/helpers/chunker";
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+const embeddingModel = new HuggingFaceTransformersEmbeddings({
+  model: "Xenova/all-MiniLM-L6-v2",
+});
+
 // storing embedding in the database
 export async function POST(
   req: NextRequest,
   res: NextResponse,
 ): Promise<Response> {
-  if (typeof window !== "undefined") {
-    return NextResponse.json(
-      {
-        message: "This operation is not supported in the browser",
-      },
-      {
-        status: 400,
-      },
-    );
-  }
-
   try {
     const { embeddingText } = await req.json();
 
     // create chunks from this embedding text
     const chunks = chunkText(embeddingText, 1536); // array of strings (overlapping strings)
-
-    // Dynamically import and initialize the embedding model
-    const { HuggingFaceTransformersEmbeddings } = await import(
-      "@langchain/community/embeddings/hf_transformers"
-    );
-    const embeddingModel = new HuggingFaceTransformersEmbeddings({
-      model: "Xenova/all-MiniLM-L6-v2",
-    });
 
     // generating embeddings from these chunks
     const embeddings = await embeddingModel.embedDocuments(chunks); // array of multiple dimension vector embedding current 384 as of now
@@ -70,4 +56,3 @@ export async function POST(
     );
   }
 }
-export const runtime = "edge"

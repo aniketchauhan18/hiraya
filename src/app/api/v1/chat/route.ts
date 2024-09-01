@@ -1,6 +1,7 @@
 import { ChatGroq } from "@langchain/groq";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { NextRequest, NextResponse } from "next/server";
+import { HuggingFaceTransformersEmbeddings } from "@langchain/community/embeddings/hf_transformers";
 import { prisma } from "@/lib/db";
 import pgvector from "pgvector";
 
@@ -24,6 +25,9 @@ Context: {context}
 
 Question: {question}
 `;
+const embeddingModel = new HuggingFaceTransformersEmbeddings({
+  model: "Xenova/all-MiniLM-L6-v2",
+});
 
 const chatModel = new ChatGroq({
   apiKey: process.env.GROQ_API_KEY,
@@ -52,29 +56,6 @@ export async function POST(
         },
       );
     }
-
-    let embeddingModel;
-    if (typeof window === "undefined") {
-      // Server-side code
-      const { HuggingFaceTransformersEmbeddings } = await import(
-        "@langchain/community/embeddings/hf_transformers"
-      );
-      embeddingModel = new HuggingFaceTransformersEmbeddings({
-        model: "Xenova/all-MiniLM-L6-v2",
-      });
-    } else {
-      // Client-side code
-      return NextResponse.json(
-        {
-          message: "This operation is not supported in the browser",
-        },
-        {
-          status: 400,
-        },
-      );
-    }
-
-    // vector embeddings of user query
     const userQueryEmbeddings = await embeddingModel.embedQuery(query);
 
     // embeddings to sql format
@@ -114,4 +95,4 @@ export async function POST(
     );
   }
 }
-export const runtime = "edge"
+export const runtime = "edge";
