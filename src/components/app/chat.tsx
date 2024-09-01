@@ -9,6 +9,29 @@ import CopyButton from "./buttons/copy-button";
 import { AnimatePresence, motion } from "framer-motion";
 // import TextToDisplay from "./TextToDisplay";
 
+const MessageSkeleton = () => (
+  <motion.div 
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    className="flex justify-start max-w-10/12"
+  >
+    <div className="flex max-w-3xl">
+      <div>
+        <p className="p-2 bg-neutral-800 rounded-full h-auto mr-1">
+          <BotMessageSquareIcon className="text-white w-4 h-4" />
+        </p>
+      </div>
+      <div className="p-2 space-y-2 bg-neutral-200  rounded-md px-3 w-64">
+        <div className="h-4 bg-neutral-300 rounded w-3/4 animate-pulse"></div>
+        <div className="h-4 bg-neutral-300 rounded w-1/2 animate-pulse"></div>
+        <div className="h-4 bg-neutral-300 rounded w-5/6 animate-pulse"></div>
+      </div>
+    </div>
+  </motion.div>
+);
+
+
 export default function ChatComponent() {
   const { chatMessages } = useChat();
   return (
@@ -17,7 +40,7 @@ export default function ChatComponent() {
         {chatMessages.length >= 1 ? (
           <div className="space-y-3 py-20">
             {chatMessages.map((message) => {
-              console.log(message.text);
+              // console.log(message.text);
               return (
                 <div key={message.text}>
                   {message.isUser ? (
@@ -66,30 +89,8 @@ export default function ChatComponent() {
                             >
                               {message.text}
                             </Markdown>
-                            {/* <TextToDisplay content={message.text} /> */}
-                            {/* <div>
-                              {message.links.length > 0 ? (
-                                <div className="flex gap-2">
-                                  {message.links.map((link, index) => {
-                                    // using index here for dev ease
-                                    return (
-                                      <div className="space-y-1">
-                                        <p
-                                          key={index}
-                                          className=" px-1 py-0.5 text-xs text-blue-600 border-b"
-                                        >
-                                          {link.text}
-                                        </p>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              ) : (
-                                <div></div>
-                              )}
-                            </div> */}
                             <div className="flex space-x-2">
-                              <CopyButton text={message.text} />
+                              <CopyButton text={message.text as string} />
                               <ShareIcon className="w-3 h-3 text-neutral-600" />
                             </div>
                           </div>
@@ -104,7 +105,7 @@ export default function ChatComponent() {
         ) : (
           <div className="min-h-[90dvh] flex flex-col justify-center items-center font-sedan text-xl font-semibold text-neutral-700">
             <BotMessageSquareIcon className="w-12 h-12 sm:16 sm:h-16 text-neutral-700" />
-            <p>Your college assistant awaits!</p>
+            <p className="text-2xl">Your college assistant awaits!</p>
           </div>
         )}
       </AnimatePresence>

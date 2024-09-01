@@ -33,7 +33,7 @@ export async function POST(
         console.log(embgs);
         const dbRes =
           await prisma.$executeRaw`INSERT INTO "TextData" ("text", "embedding") VALUES (${chunks[i]}, ${embgs}::vector)`;
-        // console.log("Data inserted successfully:", dbRes);
+        console.log("Data inserted successfully:", dbRes);
       }
     }
     return NextResponse.json(

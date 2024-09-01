@@ -64,7 +64,7 @@ export async function POST(
     const responseDb: DBResponse[] =
       await prisma.$queryRaw`SELECT id, text,  embedding::text FROM "TextData" ORDER BY embedding <-> ${sqlEmbeddings}::vector(384) LIMIT 5`;
 
-    console.log(responseDb);
+    // console.log(responseDb);
 
     const prompt = ChatPromptTemplate.fromTemplate(promptTemplate);
     const chain = prompt.pipe(chatModel);

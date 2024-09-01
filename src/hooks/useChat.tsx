@@ -22,6 +22,7 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export function ChatMessageProvider({ children }: React.PropsWithChildren) {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const memoizedChatMessages = useMemo(
     () => chatMessages,
@@ -29,7 +30,7 @@ export function ChatMessageProvider({ children }: React.PropsWithChildren) {
   ) as ChatMessage[];
   return (
     <ChatContext.Provider
-      value={{ chatMessages: memoizedChatMessages, setChatMessages }}
+      value={{ chatMessages: memoizedChatMessages, setChatMessages}}
     >
       {children}
     </ChatContext.Provider>
