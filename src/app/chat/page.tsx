@@ -31,7 +31,7 @@ export default function ChatPage() {
       <div>
         <ChatComponent />
       </div>
-      <div className="fixed bottom-0 w-full p-3 bg-white">
+      <div className="fixed bottom-0 w-full p-3 bg-transparent">
         <InputQuery />
       </div>
     </main>

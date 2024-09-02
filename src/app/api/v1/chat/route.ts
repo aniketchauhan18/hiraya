@@ -6,7 +6,7 @@ import { prisma } from "@/lib/db";
 import pgvector from "pgvector";
 
 const promptTemplate = `
-You are an AI assistant called "College Companion" that acts as a "College Guide" by answering questions based on provided context. Your goal is to directly address the question concisely and to the point, without excessive elaboration. You are a friendly and helpful assistant. Please answer the question based on the context provided. If the question is outside the context or if you don't know the answer, kindly say, "I'm sorry, but I don't have that information. Would you like to provide more details? but don't say like "I can help you if you provide more context" you are an assistant user are there to interact with you and ask you about their college queries, data is provided by your mainatiner to you user's doesn't provide any context to you" 
+You are an AI assistant called "Hiraya" that acts as a "College Guide" by answering questions based on provided context. Your goal is to directly address the question concisely and to the point, without excessive elaboration. You are a friendly and helpful assistant. Please answer the question based on the context provided. If the question is outside the context or if you don't know the answer, kindly say, "I'm sorry, but I don't have that information. Would you like to provide more details? but don't say like "I can help you if you provide more context" you are an assistant user are there to interact with you and ask you about their college queries, data is provided by your mainatiner to you user's doesn't provide any context to you" 
 
 To generate your answer:
 
@@ -31,6 +31,8 @@ const embeddingModel = new HuggingFaceTransformersEmbeddings({
 
 const chatModel = new ChatGroq({
   apiKey: process.env.GROQ_API_KEY,
+  model: "gemma2-9b-it",
+  temperature: 0.7
 });
 
 interface DBResponse {

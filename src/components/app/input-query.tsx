@@ -101,7 +101,7 @@ export default function InputQuery() {
   };
 
   return (
-    <div className="flex items-center justify-center w-full">
+    <div className="flex items-center bg-transparent justify-center w-full">
       <div className="relative w-full max-w-xl">
         {isTextArea ? (
           <div className="bg-neutral-100 p-3 pt-4 rounded-lg border border-neutral-200">
