@@ -10,7 +10,7 @@ export default function Home() {
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center space-y-4 text-center">
             <div className="space-y-2">
-              <h1 className="text-3xl h-20 flex items-center font-medium tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl bg-gradient-to-r from-blue-500 via-blue-600  to-purple-600 bg-clip-text text-transparent">
+              <h1 className="text-3xl sm:h-16 lg:h-20 flex items-center justify-center font-medium tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl bg-gradient-to-r from-blue-500 via-blue-600  to-purple-600 bg-clip-text text-transparent">
                 Your College Companion
               </h1>
               <p className="mx-auto max-w-[500px] font-normal text-neutral-500 md:text-base">

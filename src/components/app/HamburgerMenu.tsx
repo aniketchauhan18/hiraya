@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import { MenuIcon, XIcon } from "lucide-react";
+import SignoutButton from "./buttons/signout-button";
 
 export default function HamburgerMenu() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -51,23 +52,15 @@ export default function HamburgerMenu() {
                 );
               })}
               {session.data?.user ? (
-                <div className="flex flex-col space-y-4 ">
-                  <span>
-                    <Link
-                      href="/profile"
-                      className="py-1 px-3"
-                      onClick={toggleMenu}
-                    >
-                      Logout
-                    </Link>
-                  </span>
+                <div className="flex flex-col space-y-4 " onClick={toggleMenu}>
+                  <SignoutButton className="text-2xl font-normal px-3 py-1"/>
                 </div>
               ) : (
                 <div className="flex flex-col space-y-4">
-                  <Link href="/signup" className="py-1 px-3">
+                  <Link href="/signup" className="py-1 px-3" onClick={toggleMenu}>
                     Signup
                   </Link>
-                  <Link href="/signin" className="py-1 px-3">
+                  <Link href="/signin" className="py-1 px-3" onClick={toggleMenu}>
                     Signin
                   </Link>
                 </div>
