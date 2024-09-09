@@ -32,7 +32,7 @@ const embeddingModel = new HuggingFaceTransformersEmbeddings({
 const chatModel = new ChatGroq({
   apiKey: process.env.GROQ_API_KEY,
   model: "gemma2-9b-it",
-  temperature: 0.7
+  temperature: 0.7,
 });
 
 interface DBResponse {

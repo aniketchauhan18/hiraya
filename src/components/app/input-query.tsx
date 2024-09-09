@@ -8,6 +8,7 @@ import { useChat } from "@/hooks/useChat";
 export default function InputQuery() {
   const [inputValue, setInputValue] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [cursorPosition, setCursorPosition] = useState<number>(0);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const { setChatMessages } = useChat();
@@ -32,20 +33,18 @@ export default function InputQuery() {
   useEffect(() => {
     if (isTextArea) {
       textAreaRef.current?.focus();
-      textAreaRef.current?.setSelectionRange(
-        inputValue.length,
-        inputValue.length,
-      );
+      textAreaRef.current?.setSelectionRange(cursorPosition, cursorPosition);
     } else {
       inputRef.current?.focus();
-      inputRef.current?.setSelectionRange(inputValue.length, inputValue.length);
+      inputRef.current?.setSelectionRange(cursorPosition, cursorPosition);
     }
-  }, [isTextArea, inputValue]);
+  }, [isTextArea, inputValue, cursorPosition]);
 
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ): void => {
     setInputValue(e.target.value);
+    setCursorPosition(e.target.selectionStart || 0);
   };
 
   const adjustTextareaHeight = (element: HTMLTextAreaElement): void => {
@@ -120,7 +119,7 @@ export default function InputQuery() {
                 className="flex items-center text-xs bg-neutral-700 hover:bg-neutral-800/80 duration-75 h-6 rounded-sm"
                 onClick={handleQuerySubmit}
                 disabled={isLoading}
-                >
+              >
                 Send
                 {isLoading ? (
                   <LoaderIcon className="animate-spin w-3 h-3 text-neutral-600" />

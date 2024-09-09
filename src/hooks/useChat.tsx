@@ -30,7 +30,7 @@ export function ChatMessageProvider({ children }: React.PropsWithChildren) {
   ) as ChatMessage[];
   return (
     <ChatContext.Provider
-      value={{ chatMessages: memoizedChatMessages, setChatMessages}}
+      value={{ chatMessages: memoizedChatMessages, setChatMessages }}
     >
       {children}
     </ChatContext.Provider>

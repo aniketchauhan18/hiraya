@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ChatMessageProvider } from "@/hooks/useChat";
 import Navbar from "@/components/app/Navbar";
+import SessionWrapper from "@/components/app/SessionProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,13 +21,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <ChatMessageProvider>
-        <body className={inter.className}>
-          <Navbar />
-          {children}
-        </body>
-      </ChatMessageProvider>
-    </html>
+    <SessionWrapper>
+      <html lang="en">
+        <ChatMessageProvider>
+          <body className={inter.className}>
+            <Navbar />
+            {children}
+          </body>
+        </ChatMessageProvider>
+      </html>
+    </SessionWrapper>
   );
 }

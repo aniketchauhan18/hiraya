@@ -1,4 +1,3 @@
-import Sidebar from "@/components/app/Sidebar";
 import { ChatMessageProvider } from "@/hooks/useChat";
 import type { Metadata } from "next";
 
@@ -14,12 +13,7 @@ export default function ChatLayout({
 }>) {
   return (
     <ChatMessageProvider>
-      <div>
-        <Sidebar />
-        {children}
-
-      </div>
-
+      <div>{children}</div>
     </ChatMessageProvider>
   );
 }

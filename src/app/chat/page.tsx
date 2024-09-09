@@ -4,6 +4,7 @@ import ChatComponent from "@/components/app/chat";
 import { BotMessageSquareIcon } from "lucide-react";
 import { useChat } from "@/hooks/useChat";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function ChatPage() {
   const { setChatMessages } = useChat();
@@ -14,12 +15,12 @@ export default function ChatPage() {
 
   return (
     <main>
-      {/* <nav className="fixed top-0 inset-x-0 z-50 bg-neutral-800 min-h-16">
+      <nav className="fixed top-0 inset-x-0 z-50 bg-neutral-800 min-h-16">
         <div className="flex justify-between p-3 items-center">
-          <div className="flex text-white">
+          <Link href="/" className="flex text-white">
             <BotMessageSquareIcon className="text-white w-6 h-6 mr-1" />
-            <p>Chatbot</p>
-          </div>
+            <p>Hiraya</p>
+          </Link>
           <Button
             className="bg-neutral-200 text-neutral-800 hover:bg-neutral-300 shadow-sm"
             onClick={handleNewChatClick}
@@ -27,7 +28,7 @@ export default function ChatPage() {
             New Chat
           </Button>
         </div>
-      </nav> */}
+      </nav>
       <div>
         <ChatComponent />
       </div>
