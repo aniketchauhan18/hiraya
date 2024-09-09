@@ -47,7 +47,7 @@ export default function SignupForm() {
         setIsLoading(false);
       }
       if (response.ok) {
-        router.push("/login");
+        router.push("/signin");
         setErrors({}); // reseting it to
         setServerError(null);
         setIsLoading(false);
