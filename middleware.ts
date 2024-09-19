@@ -4,7 +4,10 @@ import { getToken } from "next-auth/jwt"
 
 export async function middleware(req: NextRequest) {
   const token = await getToken({req, salt: "", secret: ""})
-  if ()
+  if (!token) {
+    return NextResponse.redirect("/signin")
+  }
+  return NextResponse.next()
 }
 export const config = {
   matcher: [
