@@ -25,3 +25,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Chat {
+  id String @id @default(uuid())
+  messages Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
