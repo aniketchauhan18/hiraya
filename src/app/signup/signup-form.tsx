@@ -9,8 +9,10 @@ import { useRouter } from "next/navigation";
 import { LoaderIcon } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import SigninWithGoogleButton from "@/components/app/buttons/signin-google-button";
+import { AuthSearchPageProps } from "@/lib/definitons";
 
-export default function SignupForm() {
+
+export default function SignupForm({searchParams}: AuthSearchPageProps) {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [errors, setErrors] = useState<{ [key: string]: string[] }>({});
   const [serverError, setServerError] = useState<string | null>(null);
@@ -169,7 +171,7 @@ export default function SignupForm() {
         <p>
           Already have an account ?{" "}
           <Link
-            href="/signin"
+            href={`/signin/${searchParams?.redirect ? `?redirect=${searchParams.redirect}` : ""}`}
             className="text-neutral-900 hover:underline underline-offset-4"
           >
             Login
@@ -181,7 +183,7 @@ export default function SignupForm() {
         <p className="text-neutral-600 font-normal text-sm">OR</p>
         <div className="border-b border-neutral-300 flex-1 block"></div>
       </div>
-      <SigninWithGoogleButton />
+      <SigninWithGoogleButton callbackUrl={searchParams.redirect}/>
     </form>
   );
 }

@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
-import { auth } from "../../../auth";
+import { auth } from "@/auth";
 import SignupForm from "./signup-form";
+import { AuthSearchPageProps } from "@/lib/definitons";
 
-export default async function SignupPage() {
+
+export default async function SignupPage({searchParams}: AuthSearchPageProps) {
   const session = await auth();
 
   if (session?.user) {
@@ -11,7 +13,7 @@ export default async function SignupPage() {
 
   return (
     <main className="flex justify-center items-center min-h-screen p-5">
-      <SignupForm />
+      <SignupForm searchParams={searchParams} />
     </main>
   );
 }

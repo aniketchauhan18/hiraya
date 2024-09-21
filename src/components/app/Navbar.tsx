@@ -1,7 +1,7 @@
 "use server";
 import Link from "next/link";
 import HamburgerMenu from "./HamburgerMenu";
-import { auth } from "../../../auth";
+import { auth } from "@/auth";
 import SignoutButton from "./buttons/signout-button";
 export default async function Navbar() {
   const session = await auth();

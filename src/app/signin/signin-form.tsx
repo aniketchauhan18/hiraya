@@ -8,8 +8,13 @@ import { signIn } from "next-auth/react";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import SigninWithGoogleButton from "@/components/app/buttons/signin-google-button";
+import { AuthSearchPageProps } from "../../lib/definitons";
 
-export default function SignInForm() {
+
+
+export default function SignInForm({ searchParams }: AuthSearchPageProps) {
+  console.log(searchParams?.redirect);
+  // conso
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -31,7 +36,7 @@ export default function SignInForm() {
       } else {
         setError(null);
         setIsLoading(false);
-        router.refresh();
+        router.push(decodeURIComponent(searchParams?.redirect as string) || "/");
       }
     } catch (err) {
       console.log(err);
@@ -113,7 +118,7 @@ export default function SignInForm() {
         <p>
           Don&apos;t have an account?{" "}
           <Link
-            href="/signup"
+            href={`/signup/${searchParams?.redirect ? `?redirect=${encodeURIComponent(searchParams.redirect)}` : ""}`}
             className="text-ebb-800 hover:underline underline-offset-4"
           >
             Register
@@ -125,7 +130,7 @@ export default function SignInForm() {
         <p className="text-neutral-600 font-normal text-sm">OR</p>
         <div className="border-b border-neutral-300 flex-1 block"></div>
       </div>
-      <SigninWithGoogleButton />
+      <SigninWithGoogleButton callbackUrl={searchParams.redirect}/>
     </form>
   );
 }

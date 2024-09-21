@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { db } from "./src/lib/db";
+import { db } from "./lib/db";
 
 const GoogleClientId = process.env.GOOGLE_CLIENT_ID;
 const GoogleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
@@ -67,7 +67,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           response_type: "code",
         },
       },
-    }),
+    },  
+  ),
   ],
   session: {
     strategy: "jwt",
@@ -80,13 +81,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token = { ...token, ...user };
+        token.user = {
+          _id: user.id,
+          email: user.email,
+          name: user.name,
+          image: user.image
+        }
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }: {session: any, token: any}) {
       if (token && session.user) {
-        session.user.email = token.email as string;
+        session.user = token.user;
       }
       return session;
     },
@@ -109,7 +115,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 imageUrl: profile?.picture,
               },
             });
+            if (newUser) return true;
           }
+          return true;
         } catch (err) {
           console.log(err);
           return false;

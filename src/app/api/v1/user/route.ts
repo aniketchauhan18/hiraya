@@ -7,7 +7,9 @@ export async function POST(
   res: NextResponse,
 ): Promise<NextResponse> {
   try {
+
     const { firstName, lastName, email, password } = await req.json();
+
 
     // todo: add zod validation here
     if (!firstName || !lastName || !email || !password) {
