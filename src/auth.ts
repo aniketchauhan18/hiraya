@@ -96,7 +96,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return session;
     },
-    signIn: async ({ user, account, profile }) => {
+    signIn: async ({ account, profile }) => {
       if (account?.provider === "google") {
         // console.log(profile)
         try {

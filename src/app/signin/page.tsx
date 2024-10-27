@@ -1,10 +1,8 @@
 import { auth } from "@/auth";
 import SignInForm from "./signin-form";
 import { redirect } from "next/navigation";
-import { AuthSearchPageProps } from "../../lib/definitons";
 
-
-export default async function SigninPage({ searchParams }: AuthSearchPageProps) {
+export default async function SigninPage({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }>}) {
   const session = await auth();
   if (session?.user) {
     redirect("/");
@@ -12,7 +10,7 @@ export default async function SigninPage({ searchParams }: AuthSearchPageProps) 
 
   return (
     <main className="min-h-screen flex justify-center items-center p-5">
-      <SignInForm searchParams={searchParams} />
-    </main>
+      <SignInForm searchParams={await searchParams} />
+    </main> 
   );
 }
