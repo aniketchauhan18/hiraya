@@ -22,7 +22,7 @@ export default function ChatPage() {
             <p>Hiraya</p>
           </Link>
           <Button
-            className="bg-neutral-200 text-neutral-800 hover:bg-neutral-300 shadow-sm"
+            className="bg-neutral-200 text-neutral-800 hover:bg-neutral-300 shadow-xs"
             onClick={handleNewChatClick}
           >
             New Chat

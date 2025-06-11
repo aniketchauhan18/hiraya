@@ -65,7 +65,7 @@ export default function SignupForm({searchParams}: AuthSearchPageProps) {
 
   return (
     <form
-      className="flex flex-col p-5 shadow-sm rounded-lg border space-y-3 bg-white w-full max-w-[25rem]"
+      className="flex flex-col p-5 shadow-xs rounded-lg border space-y-3 bg-white w-full max-w-100"
       onSubmit={handleSubmit}
     >
       <div className="flex justify-center items-center">
@@ -155,7 +155,7 @@ export default function SignupForm({searchParams}: AuthSearchPageProps) {
       </div>
       <Button
         disabled={isLoading}
-        className="rounded-lg text-sm bg-gradient-to-b font-light from-neutral-700 to-neutral-800 text-white"
+        className="rounded-lg text-sm bg-linear-to-b font-light from-neutral-700 to-neutral-800 text-white"
       >
         {isLoading ? (
           <div className="flex items-center">

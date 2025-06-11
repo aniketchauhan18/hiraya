@@ -105,7 +105,7 @@ export default function InputQuery() {
         {isTextArea ? (
           <div className="bg-neutral-100 p-3 pt-4 rounded-lg border border-neutral-200">
             <Textarea
-              className="min-h-16 border-none text-neutral-800 max-h-44 lg:text-base resize-none focus:outline-none pr-2 rounded-t-lg bg-neutral-100 shadow-none  focus-visible:ring-0 focus-visible:outline-none focus:border-transparent"
+              className="min-h-16 border-none text-neutral-800 max-h-44 lg:text-base resize-none focus:outline-hidden pr-2 rounded-t-lg bg-neutral-100 shadow-none  focus-visible:ring-0 focus-visible:outline-hidden focus:border-transparent"
               value={inputValue}
               disabled={isLoading}
               onChange={(e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -132,7 +132,7 @@ export default function InputQuery() {
         ) : (
           <div className="px-2 lg:py-2 border rounded-full border-neutral-200 bg-neutral-100 flex items-center">
             <Input
-              className="rounded-full text-neutral-800 lg:text-base shadow-none border-none focus-visible:ring-0 focus-visible:outline-none bg-neutral-100 focus:border-transparent"
+              className="rounded-full text-neutral-800 lg:text-base shadow-none border-none focus-visible:ring-0 focus-visible:outline-hidden bg-neutral-100 focus:border-transparent"
               disabled={isLoading}
               value={inputValue}
               onKeyDown={handleKeyDown}

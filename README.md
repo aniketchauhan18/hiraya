@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Hiraya – Your AI College Guide
+
+Hiraya is an AI-powered college assistant web application built with Next.js. It helps students and users by answering college-related questions, providing contextual information, and sharing study resources—all via an intuitive chat interface.
+
+## Features
+
+- **AI Chatbot College Guide:**  
+  Hiraya answers questions about your college, exams, and resources using advanced AI and stored contextual data.
+
+- **Authentication:**  
+  Secure sign-in with Google or email/password using NextAuth. User data and sessions are handled safely.
+
+- **Smart Context & Memory:**  
+  Stores and retrieves information using vector embeddings, enabling context-aware responses and the ability to remember uploaded materials.
+
+- **Resource Sharing:**  
+  Maintainers can upload exam papers and study materials. Users can request and get links to specific resources (e.g., “Fluid Mechanics - CE 212 exam paper”).
+
+- **Modern UI:**  
+  Responsive chat interface with markdown support, code highlighting, sharing, and copy features. Built with React and TailwindCSS.
+
+- **Extensible Backend:**  
+  Modular structure with easy-to-extend API endpoints for chat and context management. Uses Prisma and PostgreSQL for data storage, with vector search powered by HuggingFace and pgvector.
 
 ## Getting Started
 
-First, run the development server:
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/aniketchauhan18/hiraya.git
+   cd hiraya
+   ```
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+2. **Install dependencies:**
+   ```bash
+   npm install
+   # or
+   yarn install
+   # or
+   pnpm install
+   # or
+   bun install
+   ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. **Set environment variables:**
+   - `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` for Google Auth
+   - `NEXTAUTH_SECRET`
+   - `GROQ_API_KEY`
+   - `HUGGING_FACE_API`
+   - Database connection string for Prisma
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+4. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+5. **Visit:**  
+   Open [http://localhost:3000](http://localhost:3000) to use the app.
 
-## Learn More
+## Usage
 
-To learn more about Next.js, take a look at the following resources:
+- **Ask College Questions:**  
+  Interact with the AI assistant for any college-related queries.
+- **Request Exam Papers:**  
+  Ask for specific papers (e.g., “Give me the PDF for CE 212”) and receive direct download links if available.
+- **Sign In:**  
+  Use Google or email/password to personalize your experience and save your chat history.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Tech Stack
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+- Next.js & React
+- NextAuth (Google and Credentials providers)
+- Prisma ORM & PostgreSQL with pgvector
+- HuggingFace Transformers for embeddings
+- TailwindCSS for styling
+- Vercel for deployment
 
-## Deploy on Vercel
+## Contribution
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Contributions are welcome! Please open issues or pull requests for features, bug fixes, or improvements.

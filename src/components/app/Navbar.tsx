@@ -7,7 +7,7 @@ export default async function Navbar() {
   const session = await auth();
 
   return (
-    <nav className="fixed inset-x-0 flex min-h-16 z-50 bg-neutral-100/80 backdrop-blur-sm justify-between items-center gap-5 px-5">
+    <nav className="fixed inset-x-0 flex min-h-16 z-50 bg-neutral-100/80 backdrop-blur-xs justify-between items-center gap-5 px-5">
       <Link className="flex items-center justify-center" href="/">
         <span className="ml-2 text-lg font-medium">Hiraya</span>
       </Link>
