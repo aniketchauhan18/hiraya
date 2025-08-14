@@ -45,8 +45,7 @@ interface DBResponse {
 }
 
 export async function POST(
-  req: NextRequest,
-  res: NextResponse,
+  req: NextRequest
 ): Promise<Response> {
   try {
     // user query here

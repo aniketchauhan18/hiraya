@@ -3,10 +3,7 @@ import SignInForm from "./signin-form";
 import { redirect } from "next/navigation";
 
 export default async function SigninPage({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }>}) {
-  const session = await auth();
-  if (session?.user) {
-    redirect("/");
-  }
+  redirect("/auth")
 
   return (
     <main className="min-h-screen flex justify-center items-center p-5">

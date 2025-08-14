@@ -25,7 +25,7 @@ export default async function Navbar() {
           >
             About
           </Link>
-          {session?.user ? (
+          {(await (session)?.user) ? (
             <SignoutButton />
           ) : (
             <div className="flex gap-4 sm:gap-6">

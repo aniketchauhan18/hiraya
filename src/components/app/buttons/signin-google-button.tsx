@@ -5,9 +5,10 @@ export default function SigninWithGoogleButton({ callbackUrl }: {callbackUrl?: s
   return (
     <button
       onClick={() => signIn("google", { callbackUrl: callbackUrl ? decodeURIComponent(callbackUrl) : "/" })}
-      className="border border-neutral-200 py-1 bg-neutral-100 rounded-lg flex justify-center items-center"
+      className="border border-neutral-200 py-1.25 cursor-pointer bg-neutral-100 rounded-lg flex justify-center items-center px-3 gap-2 text-sm"
     >
-      <FcGoogle className="text-2xl" />
+      <FcGoogle className="size-4" />
+      Continue with google
     </button>
   );
 }

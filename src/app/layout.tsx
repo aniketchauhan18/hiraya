@@ -25,7 +25,7 @@ export default function RootLayout({
       <html lang="en">
         <ChatMessageProvider>
           <body className={inter.className}>
-            <Navbar />
+            {/* <Navbar /> */}
             {children}
           </body>
         </ChatMessageProvider>

@@ -23,11 +23,9 @@ export async function middleware(request: NextRequest) {
   if (protectedRoute) {
     const session = await auth();
     const user = session?.user;
-
-    console.log(user);
     if (!user) {
       // adding /signin to the the current url end like -> http://localhost:3000/signin
-      const redirectUrl = new URL("/signin", request.url);
+      const redirectUrl = new URL("/auth", request.url);
       redirectUrl.searchParams.set("redirect", protectedRoute);
       return NextResponse.redirect(redirectUrl)
     }

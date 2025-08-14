@@ -14,8 +14,7 @@ const embeddingModel = new HuggingFaceTransformersEmbeddings({
 
 // storing embedding in the database
 export async function POST(
-  req: NextRequest,
-  res: NextResponse,
+  req: NextRequest
 ): Promise<Response> {
   try {
     const { embeddingText } = await req.json();

@@ -3,8 +3,7 @@ import { db } from "@/lib/db";
 import bcrypt from "bcryptjs";
 
 export async function POST(
-  req: NextRequest,
-  res: NextResponse,
+  req: NextRequest
 ): Promise<NextResponse> {
   try {
 
