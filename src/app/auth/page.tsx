@@ -3,12 +3,12 @@ import SigninWithGoogleButton from "@/components/app/buttons/signin-google-butto
 import { redirect } from "next/navigation";
 
 export default async function Auth({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
-  
-  const session = await auth();
-  
-  if (session?.user) {
-    redirect("/");
-  }
+  redirect("/chat");
+  // const session = await auth();
+
+  // if (session?.user) {
+  //   redirect("/");
+  // }
 
   return (
     <div className="flex justify-center items-center min-h-screen">

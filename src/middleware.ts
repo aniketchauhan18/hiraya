@@ -13,25 +13,25 @@ if (!NEXTAUTH_SECRET) {
 const protectedRoutes = ['/chat'];
 // This function can be marked `async` if using `await` inside
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  // const { pathname } = request.nextUrl;
 
-  // checking for protected routes
-  const protectedRoute = protectedRoutes.find((route) =>
-    pathname.startsWith(route)
-  );
+  // // checking for protected routes
+  // const protectedRoute = protectedRoutes.find((route) =>
+  //   pathname.startsWith(route)
+  // );
 
-  if (protectedRoute) {
-    const session = await auth();
-    const user = session?.user;
-    if (!user) {
-      // adding /signin to the the current url end like -> http://localhost:3000/signin
-      const redirectUrl = new URL("/auth", request.url);
-      redirectUrl.searchParams.set("redirect", protectedRoute);
-      return NextResponse.redirect(redirectUrl)
-    }
-    return NextResponse.next()
-  }
-  return NextResponse.redirect(new URL('/', request.url))
+  // if (protectedRoute) {
+  //   const session = await auth();
+  //   const user = session?.user;
+  //   if (!user) {
+  //     // adding /signin to the the current url end like -> http://localhost:3000/signin
+  //     const redirectUrl = new URL("/auth", request.url);
+  //     redirectUrl.searchParams.set("redirect", protectedRoute);
+  //     return NextResponse.redirect(redirectUrl)
+  //   }
+  //   return NextResponse.next()
+  // }
+  // return NextResponse.redirect(new URL('/', request.url))
 }
  
 // See "Matching Paths" below to learn more
