@@ -7,9 +7,11 @@ interface LinkType {
 }
 
 interface ChatMessage {
+  id: string;
   text: string;
   links: LinkType[];
   isUser: boolean;
+  isStreaming?: boolean;
 }
 
 // context type for chatMessages

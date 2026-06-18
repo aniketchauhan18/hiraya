@@ -1,6 +1,4 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  serverExternalPackages: ["onnxruntime-node"],
-};
+const nextConfig = {};
 
 export default nextConfig;

@@ -14,7 +14,8 @@ if (!GoogleClientId || !GoogleClientSecret) {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+  trustHost: true,
   providers: [
     Credentials({
       name: "Credentials",
@@ -132,7 +133,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
 });
-
 // {
 //   iss: 'https://accounts.google.com',
 //   azp: '582190175829-pjjhprbnqje44o7cieg01v12g9334eu8.apps.googleusercontent.com',
@@ -148,3 +148,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 //   iat: 1725798861,
 //   exp: 1725802461
 // }
+

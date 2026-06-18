@@ -59,11 +59,22 @@ export default function InputQuery() {
       return;
     }
 
-    // adding links to empty array for this
+    const userQuery = inputValue.trim();
+    const botMessageId = crypto.randomUUID();
+
     setChatMessages((prevMessages) => [
       ...prevMessages,
-      { text: inputValue, isUser: true, links: [], isLoading: true },
+      { id: crypto.randomUUID(), text: userQuery, isUser: true, links: [] },
+      {
+        id: botMessageId,
+        text: "",
+        isUser: false,
+        links: [],
+        isStreaming: true,
+      },
     ]);
+
+    setInputValue("");
 
     try {
       const response = await fetch("/api/v1/chat", {
@@ -72,23 +83,55 @@ export default function InputQuery() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          query: inputValue,
+          query: userQuery,
         }),
       });
-      if (!response.ok) {
-        setIsLoading(false);
-        throw new Error("Server Response was not ok");
+
+      if (!response.ok || !response.body) {
+        throw new Error("Server response was not ok");
       }
-      setInputValue("");
-      const data = await response.json();
-      // console.log(data);
-      setChatMessages((prevMessages) => [
-        ...prevMessages,
-        { text: data.data, isUser: false, links: data.links },
-      ]);
-      setIsLoading(false);
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulated = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        accumulated += decoder.decode(value, { stream: true });
+        setChatMessages((prevMessages) =>
+          prevMessages.map((message) =>
+            message.id === botMessageId
+              ? { ...message, text: accumulated }
+              : message,
+          ),
+        );
+      }
+
+      accumulated += decoder.decode();
+      setChatMessages((prevMessages) =>
+        prevMessages.map((message) =>
+          message.id === botMessageId
+            ? { ...message, text: accumulated, isStreaming: false }
+            : message,
+        ),
+      );
     } catch (err) {
-      console.log(err);
+      console.error(err);
+      setChatMessages((prevMessages) =>
+        prevMessages.map((message) =>
+          message.id === botMessageId
+            ? {
+                ...message,
+                text: "Sorry, something went wrong. Please try again.",
+                isStreaming: false,
+              }
+            : message,
+        ),
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -137,7 +180,7 @@ export default function InputQuery() {
               value={inputValue}
               onKeyDown={handleKeyDown}
               onChange={handleInputChange}
-              placeholder="Ask anthing related to college"
+              placeholder="Ask anything about NIT Hamirpur..."
               ref={inputRef}
             />
             <div className="mr-2">
