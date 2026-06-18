@@ -1,101 +1,56 @@
-import { ChatGroq } from "@langchain/groq";
-import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { NextRequest, NextResponse } from "next/server";
-import { HuggingFaceTransformersEmbeddings } from "@langchain/community/embeddings/hf_transformers";
-import { prisma } from "@/lib/db";
-import pgvector from "pgvector";
+import {
+  extractStreamChunk,
+  retrieveContext,
+  streamAnswer,
+} from "@/lib/rag";
 
-const promptTemplate = `
-You are an AI assistant called "Hiraya" that acts as a "College Guide" by answering questions based on provided context. Your goal is to directly address the question concisely and to the point, without excessive elaboration. You are a friendly and helpful assistant. Please answer the question based on the context provided. If the question is outside the context or if you don't know the answer, kindly say, "I'm sorry, but I don't have that information. Would you like to provide more details? but don't say like "I can help you if you provide more context" you are an assistant user are there to interact with you and ask you about their college queries, data is provided by your mainatiner to you user's doesn't provide any context to you" 
-
-To generate your answer:
-
-- Carefully analyze the question and identify the key information needed to address it
-- Locate the specific parts of each context that contain this key information
-- Concisely summarize the relevant information from the higher-scoring context(s) in your own words
-- Provide a direct answer to the question
-- Use Markdown Formatting: When generating your answer, use suitable Markdown practices, including:
-- Bold for emphasis on important points.
-- Italics for additional emphasis or to highlight specific terms.
-- Bullet points for lists to improve clarity and readability.
-- Give detailed and accurate responses for long-form questions.
-If no context is provided, introduce yourself and explain that the user can save content which will allow you to answer questions about that content in the future. Do not provide an answer if no context is provided.
-
-### Providing PDF Links for if user ask for Exam Questions
-
-If the user asks for questions from a specific exam paper (e.g., "Can you provide me the questions of Fluid Mechanics - CE 212?"), check the provided context for any PDF links that match the requested exam code. If a matching PDF link is found, provide the link in your response. If no matching link is found, say, "I'm sorry, but I don't have the PDF for the requested exam paper in my context."
-Context: {context}
-
-Question: {question}
-`;
-const embeddingModel = new HuggingFaceTransformersEmbeddings({
-  model: "Xenova/all-MiniLM-L6-v2",
-});
-
-const chatModel = new ChatGroq({
-  apiKey: process.env.GROQ_API_KEY,
-  model: process.env.GROQ_MODEL || "llama-3.1-8b-instant",
-  temperature: 0.7,
-});
-
-interface DBResponse {
-  id: number;
-  text: string;
-  embedding: string; // Store the embedding as a string
+function extractChunkText(chunk: unknown): string {
+  return extractStreamChunk(chunk);
 }
 
-export async function POST(
-  req: NextRequest
-): Promise<Response> {
+export async function POST(req: NextRequest): Promise<Response> {
   try {
-    // user query here
     const { query } = await req.json();
     if (!query) {
       return NextResponse.json(
-        {
-          message: "Please provide query in the request body",
-        },
-        {
-          status: 400,
-        },
+        { message: "Please provide query in the request body" },
+        { status: 400 },
       );
     }
-    const userQueryEmbeddings = await embeddingModel.embedQuery(query);
 
-    // embeddings to sql format
-    const sqlEmbeddings = pgvector.toSql(userQueryEmbeddings);
+    const { context } = await retrieveContext(query);
+    const llmStream = await streamAnswer(context, query);
 
-    const responseDb: DBResponse[] =
-      await prisma.$queryRaw`SELECT id, text,  embedding::text FROM "TextData" ORDER BY embedding <-> ${sqlEmbeddings}::vector(384) LIMIT 3`;
-
-    // console.log(responseDb);
-
-    const prompt = ChatPromptTemplate.fromTemplate(promptTemplate);
-    const chain = prompt.pipe(chatModel);
-
-    const response = await chain.invoke({
-      context: responseDb.map((res) => res.text).join("\n"),
-      question: query,
+    const encoder = new TextEncoder();
+    const readable = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of llmStream) {
+            const text = extractChunkText(chunk);
+            if (text) {
+              controller.enqueue(encoder.encode(text));
+            }
+          }
+          controller.close();
+        } catch (error) {
+          controller.error(error);
+        }
+      },
     });
 
-    return NextResponse.json(
-      {
-        message: "response generated successfully",
-        data: response.content,
+    return new Response(readable, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-cache, no-transform",
+        Connection: "keep-alive",
       },
-      {
-        status: 200,
-      },
-    );
+    });
   } catch (err) {
     console.error(err);
     return NextResponse.json(
-      {
-        message: "Internal server error while processing",
-      },
-      {
-        status: 500,
-      },
+      { message: "Internal server error while processing" },
+      { status: 500 },
     );
   }
 }

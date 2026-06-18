@@ -39,9 +39,8 @@ export default function ChatComponent() {
         {chatMessages.length >= 1 ? (
           <div className="space-y-3 py-20">
             {chatMessages.map((message) => {
-              // console.log(message.text);
               return (
-                <div key={message.text}>
+                <div key={message.id}>
                   {message.isUser ? (
                     <motion.div
                       initial={{ opacity: 0 }}
@@ -86,12 +85,18 @@ export default function ChatComponent() {
                                 ],
                               ]}
                             >
-                              {message.text}
+                              {message.text ||
+                                (message.isStreaming ? " " : "")}
                             </Markdown>
-                            <div className="flex space-x-2">
-                              <CopyButton text={message.text as string} />
-                              <ShareIcon className="w-3 h-3 text-neutral-600" />
-                            </div>
+                            {message.isStreaming && (
+                              <span className="inline-block w-2 h-4 ml-0.5 bg-neutral-600 animate-pulse align-middle" />
+                            )}
+                            {!message.isStreaming && message.text && (
+                              <div className="flex space-x-2">
+                                <CopyButton text={message.text} />
+                                <ShareIcon className="w-3 h-3 text-neutral-600" />
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -104,7 +109,7 @@ export default function ChatComponent() {
         ) : (
           <div className="min-h-[90dvh] flex flex-col justify-center items-center font-sedan text-xl font-semibold text-neutral-700">
             <BotMessageSquareIcon className="w-12 h-12 sm:16 sm:h-16 text-neutral-700" />
-            <p className="text-2xl">Your college assistant awaits!</p>
+            <p className="text-2xl">Your NIT Hamirpur assistant awaits!</p>
           </div>
         )}
       </AnimatePresence>
