@@ -1,7 +1,14 @@
 import {
+  env,
   pipeline,
   type FeatureExtractionPipeline,
 } from "@huggingface/transformers";
+
+// On serverless hosts (e.g. Vercel) the filesystem is read-only except /tmp,
+// so the model cache must live there. Locally the default cache is used.
+if (process.env.VERCEL) {
+  env.cacheDir = "/tmp/hf-transformers-cache";
+}
 
 const HF_MODEL = "sentence-transformers/all-MiniLM-L6-v2";
 export const EMBEDDING_DIM = 384;
