@@ -2,7 +2,7 @@ import nlp from "compromise";
 export default function chunkText(
   text: string,
   maxChunkSize: number,
-  overlap = 2,
+  overlap = 0.30,
 ) {
   const sentences = nlp(text).sentences().out("array");
   const chunks = [];
