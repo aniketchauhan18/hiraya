@@ -236,10 +236,19 @@ These helpers build and ingest the NIT Hamirpur knowledge base. Ingestion posts 
 
 1. Set all environment variables in the project settings.
 2. Use a Neon (or other) PostgreSQL instance with the `vector` extension.
-3. Deploy to a **Node.js runtime** (not Edge): `@huggingface/transformers` relies on `onnxruntime-node`'s native binaries, which are excluded from bundling via `serverExternalPackages` in `next.config.ts`.
+3. Deploy to a **Node.js runtime** (not Edge): `@huggingface/transformers` relies on `onnxruntime-node`'s native binaries.
 4. Set `EMBEDDINGS_API_SECRET` and keep it private — never expose it as `NEXT_PUBLIC_*`.
 5. Optionally configure **Upstash Redis** for rate limiting in production.
 6. Run `prisma migrate deploy` against your production database before or as part of deploy.
+
+### Keeping the serverless function under the 250 MB limit
+
+`onnxruntime-node` ships ~513 MB of native binaries — GPU providers (CUDA alone is ~300 MB) plus Windows/macOS/ARM builds — none of which are used on Vercel's Linux x64 CPU runtime. Bundling them all pushes the `api/v1/chat` function past Vercel's 250 MB uncompressed limit. Two settings keep it small:
+
+- **`outputFileTracingExcludes`** in [`next.config.ts`](next.config.ts) drops the CUDA/TensorRT providers, the non-Linux-x64 binaries, and the browser-only `onnxruntime-web` package, leaving only the ~34 MB Linux x64 CPU runtime. This brings the function from ~400 MB down to ~130 MB.
+- **`env.cacheDir = "/tmp/..."`** (set in [`src/lib/rag/embed.ts`](src/lib/rag/embed.ts) when `process.env.VERCEL` is present) points the model cache at the only writable path on serverless. The ~90 MB model downloads on the first request of each cold instance, so expect a few seconds of cold-start latency; warm invocations reuse the in-process singleton.
+
+> For consistently low latency (no cold-start model download), deploy to a long-running Node host (Railway, Render, Fly.io, or a container) instead of serverless — a persistent process keeps the model warm.
 
 ## Contributing
 
