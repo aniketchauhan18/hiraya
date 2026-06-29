@@ -9,24 +9,25 @@ Hiraya is an AI-powered campus guide for **National Institute of Technology Hami
 - **RAG knowledge base** — Text is chunked, embedded, and stored in PostgreSQL with **pgvector**; the top relevant chunks are retrieved per query.
 - **Exam paper / PDF links** — When exam resources exist in the knowledge base, Hiraya can return matching PDF links (e.g. CE 212).
 - **Maintainer-only ingestion** — Only you can add embeddings via a secret-protected API (`EMBEDDINGS_API_SECRET`).
-- **Authentication** — NextAuth v5 (Google OAuth + email/password credentials). Sign-in routes exist at `/auth`, `/signin`, and `/signup`.
 - **Modern UI** — React 19, Tailwind CSS 4, markdown rendering with syntax highlighting and copy support.
 
 ## Architecture
 
 ```
 User question
-    → HuggingFace Inference API (embed query)
+    → Local transformers.js pipeline (embed query, in-process)
     → pgvector similarity search (top 5 chunks, distance threshold)
     → Groq LLM (LangChain, streamed)
     → Chat UI
 ```
 
+Embeddings run **locally in-process** via `@huggingface/transformers` (`all-MiniLM-L6-v2`). The model loads once per process as a cached singleton, so warm queries embed in a few milliseconds with no network round trip. The first run downloads ~90MB of model weights to a local cache; later runs load from disk.
+
 **Knowledge ingestion (maintainers only):**
 
 ```
 POST /api/v1/embeddings  (Bearer secret)
-    → chunk text → HF embeddings → insert into TextData
+    → chunk text → local embeddings → insert into TextData
 ```
 
 ## Tech Stack
@@ -38,17 +39,18 @@ POST /api/v1/embeddings  (Bearer secret)
 | Auth | NextAuth v5 (Auth.js) |
 | Database | PostgreSQL + pgvector (e.g. Neon) |
 | ORM | Prisma 7 (`@prisma/adapter-pg`) |
-| Embeddings | HuggingFace Inference API (`sentence-transformers/all-MiniLM-L6-v2`, 384-dim) |
+| Embeddings | Local `@huggingface/transformers` (`sentence-transformers/all-MiniLM-L6-v2`, 384-dim, mean-pooled + normalized) |
 | LLM | Groq via `@langchain/groq` |
 | Styling | Tailwind CSS 4 |
 | Rate limiting | Upstash Redis (optional, recommended on Vercel) |
-| Deployment | Vercel (serverless-friendly — no local ONNX/transformers in production) |
+| Deployment | Node.js runtime (onnxruntime-node ships native binaries; excluded from bundling via `serverExternalPackages`) |
 
 ## Requirements
 
 - **Node.js >= 22**
 - PostgreSQL database with the **vector** extension enabled
-- API keys: Groq, HuggingFace (Inference), Google OAuth (optional for Google sign-in)
+- API keys: Groq, Google OAuth (optional for Google sign-in)
+- No embedding API key needed — embeddings run locally; the model is downloaded to a local cache on first use
 
 ## Getting Started
 
@@ -78,15 +80,10 @@ GOOGLE_CLIENT_SECRET=
 GROQ_API_KEY=
 GROQ_MODEL=llama-3.1-8b-instant
 
-# Embeddings (HuggingFace Inference API — required)
-HUGGING_FACE_API=hf_...
+# Embeddings run locally via @huggingface/transformers — no API key required.
 
 # Maintainer-only embedding ingestion
 EMBEDDINGS_API_SECRET=your-secret-here
-
-# Optional: rate limiting (recommended for production)
-UPSTASH_REDIS_REST_URL=
-UPSTASH_REDIS_REST_TOKEN=
 
 # App
 NEXT_PUBLIC_APP_URL=http://localhost:3000
@@ -200,6 +197,8 @@ src/
 prisma/
 ├── schema.prisma
 └── migrations/
+scripts/                      # KB build/ingest/clear helpers
+data/                         # Generated knowledge-base .txt files
 prisma.config.ts              # Prisma 7 config + env loading
 ```
 
@@ -220,11 +219,24 @@ prisma.config.ts              # Prisma 7 config + env loading
 | `npm run lint` | Run ESLint |
 | `npm run format` | Format with Prettier |
 
+### Knowledge base scripts
+
+These helpers build and ingest the NIT Hamirpur knowledge base. Ingestion posts to the running dev server, which embeds chunks locally before storing them.
+
+| Command | Description |
+|---------|-------------|
+| `node scripts/build-kb.mjs` | Scrape general NITH info → `data/nith-knowledge-base.txt` |
+| `node scripts/build-clubs-kb.mjs` | Scrape club/society info → `data/nith-clubs-kb.txt` |
+| `node scripts/ingest-kb.mjs [file.txt]` | Chunk + embed a KB file and insert into `TextData` (default: `nith-knowledge-base.txt`; add `--dry-run` to preview) |
+| `node scripts/clear-kb.mjs` | Truncate the `TextData` table |
+
+> **Important:** Embeddings are produced by the local pipeline. If you change the embedding model or pooling/normalization, you must `clear-kb.mjs` and re-ingest so stored vectors and query vectors stay consistent.
+
 ## Deployment (Vercel)
 
-1. Set all environment variables in the Vercel project settings.
+1. Set all environment variables in the project settings.
 2. Use a Neon (or other) PostgreSQL instance with the `vector` extension.
-3. Ensure `HUGGING_FACE_API` uses a token with **Inference** permissions.
+3. Deploy to a **Node.js runtime** (not Edge): `@huggingface/transformers` relies on `onnxruntime-node`'s native binaries, which are excluded from bundling via `serverExternalPackages` in `next.config.ts`.
 4. Set `EMBEDDINGS_API_SECRET` and keep it private — never expose it as `NEXT_PUBLIC_*`.
 5. Optionally configure **Upstash Redis** for rate limiting in production.
 6. Run `prisma migrate deploy` against your production database before or as part of deploy.

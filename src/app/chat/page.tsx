@@ -14,25 +14,23 @@ export default function ChatPage() {
   };
 
   return (
-    <main>
-      <nav className="fixed top-0 inset-x-0 z-50 bg-neutral-800 min-h-16">
-        <div className="flex justify-between p-3 items-center">
+    <main className="flex h-dvh flex-col">
+      <nav className="z-50 min-h-16 shrink-0 bg-neutral-800">
+        <div className="flex items-center justify-between p-3">
           <Link href="/" className="flex text-white">
-            <BotMessageSquareIcon className="text-white w-6 h-6 mr-1" />
+            <BotMessageSquareIcon className="mr-1 h-6 w-6 text-white" />
             <p>Hiraya</p>
           </Link>
           <Button
-            className="bg-neutral-200 text-neutral-800 hover:bg-neutral-300 shadow-xs"
+            className="bg-neutral-200 text-neutral-800 shadow-xs hover:bg-neutral-300"
             onClick={handleNewChatClick}
           >
             New Chat
           </Button>
         </div>
       </nav>
-      <div>
-        <ChatComponent />
-      </div>
-      <div className="fixed bottom-0 w-full p-3 bg-transparent">
+      <ChatComponent />
+      <div className="shrink-0 bg-transparent p-3">
         <InputQuery />
       </div>
     </main>

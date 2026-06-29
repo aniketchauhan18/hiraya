@@ -1,118 +1,108 @@
 "use client";
 import { useChat } from "@/hooks/useChat";
-import { BotMessageSquareIcon, UserRoundIcon, ShareIcon } from "lucide-react";
+import { BotMessageSquareIcon, UserRoundIcon } from "lucide-react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeKatex from "rehype-katex";
 import rehypeHighlight from "rehype-highlight";
 import CopyButton from "./buttons/copy-button";
-import { AnimatePresence, motion } from "framer-motion";
-// import TextToDisplay from "./TextToDisplay";
+import {
+  Conversation,
+  ConversationContent,
+  ConversationEmptyState,
+  ConversationScrollButton,
+} from "@/components/ai-elements/conversation";
+import { Message, MessageContent } from "@/components/ai-elements/message";
+import { Loader } from "@/components/ai-elements/loader";
 
-const MessageSkeleton = () => (
-  <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    exit={{ opacity: 0 }}
-    className="flex justify-start max-w-10/12"
-  >
-    <div className="flex max-w-3xl">
-      <div>
-        <p className="p-2 bg-neutral-800 rounded-full h-auto mr-1">
-          <BotMessageSquareIcon className="text-white w-4 h-4" />
-        </p>
-      </div>
-      <div className="p-2 space-y-2 bg-neutral-200  rounded-md px-3 w-64">
-        <div className="h-4 bg-neutral-300 rounded w-3/4 animate-pulse"></div>
-        <div className="h-4 bg-neutral-300 rounded w-1/2 animate-pulse"></div>
-        <div className="h-4 bg-neutral-300 rounded w-5/6 animate-pulse"></div>
-      </div>
+function AssistantAvatar() {
+  return (
+    <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-neutral-800 text-white shadow-sm">
+      <BotMessageSquareIcon className="size-4" />
     </div>
-  </motion.div>
-);
+  );
+}
+
+function UserAvatar() {
+  return (
+    <div className="flex size-8 shrink-0 items-center justify-center rounded-full border bg-background text-muted-foreground">
+      <UserRoundIcon className="size-4" />
+    </div>
+  );
+}
 
 export default function ChatComponent() {
   const { chatMessages } = useChat();
+
   return (
-    <div className="p-5">
-      <AnimatePresence mode="popLayout">
-        {chatMessages.length >= 1 ? (
-          <div className="space-y-3 py-20">
-            {chatMessages.map((message) => {
-              return (
-                <div key={message.id}>
-                  {message.isUser ? (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      key="initial"
-                      className="space-y-3"
-                    >
-                      <div className="flex justify-end pb-2">
-                        <div className="flex max-w-sm">
-                          <p className="p-2 text-sm bg-neutral-200 rounded-md px-3">
-                            {message.text}
-                          </p>
-                          <div>
-                            <p className="p-2 bg-neutral-800 rounded-full h-auto ml-1">
-                              <UserRoundIcon className="text-white w-4 h-4" />
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ) : (
-                    <motion.div className="space-y-3">
-                      <div className="flex justify-start max-w-10/12">
-                        <div className="flex max-w-3xl">
-                          <div>
-                            <p className="p-2 bg-neutral-800 rounded-full h-auto mr-1">
-                              <BotMessageSquareIcon className="text-white w-4 h-4" />
-                            </p>
-                          </div>
-                          <div className="p-2 space-y-2 text-sm prose prose-neutral dark:prose-invert prose-headings:bg-neutral-100 dark:prose-headings:bg-neutral-800 prose-headings:p-2 prose-headings:rounded prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-li:marker:text-neutral-500 prose-img:rounded-lg bg-neutral-200 dark:bg-neutral-800 rounded-md px-3">
-                            <Markdown
-                              remarkPlugins={[remarkGfm]}
-                              rehypePlugins={[
-                                rehypeKatex,
-                                [
-                                  rehypeHighlight,
-                                  {
-                                    detect: true,
-                                    ignoreMissing: true,
-                                  },
-                                ],
-                              ]}
-                            >
-                              {message.text ||
-                                (message.isStreaming ? " " : "")}
-                            </Markdown>
-                            {message.isStreaming && (
-                              <span className="inline-block w-2 h-4 ml-0.5 bg-neutral-600 animate-pulse align-middle" />
-                            )}
-                            {!message.isStreaming && message.text && (
-                              <div className="flex space-x-2">
-                                <CopyButton text={message.text} />
-                                <ShareIcon className="w-3 h-3 text-neutral-600" />
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+    <Conversation>
+      <ConversationContent className="mx-auto w-full max-w-3xl gap-6 px-4 py-6">
+        {chatMessages.length === 0 ? (
+          <ConversationEmptyState
+            className="h-[60dvh]"
+            icon={
+              <div className="flex size-14 items-center justify-center rounded-2xl bg-neutral-800 text-white">
+                <BotMessageSquareIcon className="size-7" />
+              </div>
+            }
+            title="Your NIT Hamirpur assistant awaits!"
+            description="Ask about academics, exams, placements, or campus life."
+          />
         ) : (
-          <div className="min-h-[90dvh] flex flex-col justify-center items-center font-sedan text-xl font-semibold text-neutral-700">
-            <BotMessageSquareIcon className="w-12 h-12 sm:16 sm:h-16 text-neutral-700" />
-            <p className="text-2xl">Your NIT Hamirpur assistant awaits!</p>
-          </div>
+          chatMessages.map((message) =>
+            message.isUser ? (
+              <Message from="user" key={message.id}>
+                <div className="flex items-start justify-end gap-3">
+                  <MessageContent className="rounded-2xl bg-secondary px-4 py-2.5 leading-relaxed">
+                    {message.text}
+                  </MessageContent>
+                  <UserAvatar />
+                </div>
+              </Message>
+            ) : (
+              <Message from="assistant" key={message.id}>
+                <div className="group/msg flex items-start gap-3">
+                  <AssistantAvatar />
+                  <div className="flex min-w-0 flex-1 flex-col gap-1.5 pt-0.5">
+                    {message.text ? (
+                      <MessageContent className="prose prose-neutral dark:prose-invert max-w-none prose-p:leading-relaxed prose-pre:rounded-xl prose-pre:bg-muted prose-pre:text-foreground prose-code:rounded prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:font-normal prose-code:before:content-[''] prose-code:after:content-[''] prose-headings:text-base prose-headings:font-semibold prose-a:text-primary prose-li:marker:text-muted-foreground prose-img:rounded-xl">
+                        <Markdown
+                          remarkPlugins={[remarkGfm]}
+                          rehypePlugins={[
+                            rehypeKatex,
+                            [
+                              rehypeHighlight,
+                              {
+                                detect: true,
+                                ignoreMissing: true,
+                              },
+                            ],
+                          ]}
+                        >
+                          {message.text}
+                        </Markdown>
+                      </MessageContent>
+                    ) : (
+                      message.isStreaming && (
+                        <div className="flex items-center gap-2 pt-1 text-muted-foreground">
+                          <Loader size={16} />
+                          <span className="text-sm">Thinking…</span>
+                        </div>
+                      )
+                    )}
+                    {!message.isStreaming && message.text && (
+                      <div className="-ml-1 flex items-center gap-1 opacity-0 transition-opacity group-hover/msg:opacity-100 focus-within:opacity-100">
+                        <CopyButton text={message.text} />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </Message>
+            ),
+          )
         )}
-      </AnimatePresence>
-    </div>
+      </ConversationContent>
+      <ConversationScrollButton />
+    </Conversation>
   );
 }
