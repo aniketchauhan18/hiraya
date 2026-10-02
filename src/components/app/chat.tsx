@@ -1,10 +1,6 @@
 "use client";
 import { useChat } from "@/hooks/useChat";
 import { BotMessageSquareIcon, UserRoundIcon } from "lucide-react";
-import Markdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import rehypeKatex from "rehype-katex";
-import rehypeHighlight from "rehype-highlight";
 import CopyButton from "./buttons/copy-button";
 import {
   Conversation,
@@ -12,7 +8,12 @@ import {
   ConversationEmptyState,
   ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
-import { Message, MessageContent } from "@/components/ai-elements/message";
+import {
+  Message,
+  MessageActions,
+  MessageContent,
+  MessageResponse,
+} from "@/components/ai-elements/message";
 import { Loader } from "@/components/ai-elements/loader";
 
 function AssistantAvatar() {
@@ -53,9 +54,7 @@ export default function ChatComponent() {
             message.isUser ? (
               <Message from="user" key={message.id}>
                 <div className="flex items-start justify-end gap-3">
-                  <MessageContent className="rounded-2xl bg-secondary px-4 py-2.5 leading-relaxed">
-                    {message.text}
-                  </MessageContent>
+                  <MessageContent>{message.text}</MessageContent>
                   <UserAvatar />
                 </div>
               </Message>
@@ -65,22 +64,24 @@ export default function ChatComponent() {
                   <AssistantAvatar />
                   <div className="flex min-w-0 flex-1 flex-col gap-1.5 pt-0.5">
                     {message.text ? (
-                      <MessageContent className="prose prose-neutral dark:prose-invert max-w-none prose-p:leading-relaxed prose-pre:rounded-xl prose-pre:bg-muted prose-pre:text-foreground prose-code:rounded prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:font-normal prose-code:before:content-[''] prose-code:after:content-[''] prose-headings:text-base prose-headings:font-semibold prose-a:text-primary prose-li:marker:text-muted-foreground prose-img:rounded-xl">
-                        <Markdown
-                          remarkPlugins={[remarkGfm]}
-                          rehypePlugins={[
-                            rehypeKatex,
-                            [
-                              rehypeHighlight,
-                              {
-                                detect: true,
-                                ignoreMissing: true,
-                              },
-                            ],
-                          ]}
+                      <MessageContent className="w-full max-w-none">
+                        <MessageResponse
+                          className="prose prose-neutral dark:prose-invert max-w-none text-[0.95rem] leading-relaxed prose-headings:mb-2 prose-headings:mt-4 prose-headings:text-base prose-headings:font-semibold prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-li:my-0.5 prose-a:font-medium prose-a:text-blue-600 prose-a:underline prose-a:underline-offset-2 hover:prose-a:text-blue-700 dark:prose-a:text-blue-400"
+                          components={{
+                            a: ({ href, children, ...props }) => (
+                              <a
+                                href={href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                {...props}
+                              >
+                                {children}
+                              </a>
+                            ),
+                          }}
                         >
                           {message.text}
-                        </Markdown>
+                        </MessageResponse>
                       </MessageContent>
                     ) : (
                       message.isStreaming && (
@@ -91,9 +92,9 @@ export default function ChatComponent() {
                       )
                     )}
                     {!message.isStreaming && message.text && (
-                      <div className="-ml-1 flex items-center gap-1 opacity-0 transition-opacity group-hover/msg:opacity-100 focus-within:opacity-100">
+                      <MessageActions className="-ml-1 opacity-0 transition-opacity group-hover/msg:opacity-100 focus-within:opacity-100">
                         <CopyButton text={message.text} />
-                      </div>
+                      </MessageActions>
                     )}
                   </div>
                 </div>

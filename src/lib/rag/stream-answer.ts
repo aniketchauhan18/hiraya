@@ -1,12 +1,7 @@
 import { ChatGroq } from "@langchain/groq";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { HIRAYA_NITH_SYSTEM_PROMPT } from "@/lib/prompts/hiraya-system-prompt";
-
-const chatModel = new ChatGroq({
-  apiKey: process.env.GROQ_API_KEY,
-  model: process.env.GROQ_MODEL || "llama-3.1-8b-instant",
-  temperature: 0.1,
-});
+import { DEFAULT_GROQ_MODEL } from "@/lib/rag/groq-models";
 
 function extractChunkText(chunk: unknown): string {
   if (!chunk) return "";
@@ -18,7 +13,16 @@ function extractChunkText(chunk: unknown): string {
   return "";
 }
 
-export async function streamAnswer(context: string, question: string) {
+export async function streamAnswer(
+  context: string,
+  question: string,
+  modelId: string = DEFAULT_GROQ_MODEL,
+) {
+  const chatModel = new ChatGroq({
+    apiKey: process.env.GROQ_API_KEY,
+    model: modelId,
+    temperature: 0.1,
+  });
   const prompt = ChatPromptTemplate.fromTemplate(HIRAYA_NITH_SYSTEM_PROMPT);
   const chain = prompt.pipe(chatModel);
   return chain.stream({ context, question });

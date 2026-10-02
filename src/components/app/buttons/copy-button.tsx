@@ -9,22 +9,27 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-const COPY_DEBOUNCE_MS = 300;
+const COPY_DEBOUNCE_MS = 800;
 const COPIED_RESET_MS = 2000;
 
 export default function CopyButton({ text }: { text: string }) {
-  const [copied, setCopied] = useState<boolean>(false);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [copied, setCopied] = useState(false);
+  const lastCopyAtRef = useRef(0);
   const resetRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
       if (resetRef.current) clearTimeout(resetRef.current);
     };
   }, []);
 
-  const copyToClipboard = useCallback(async () => {
+  const handleClick = useCallback(async () => {
+    const now = Date.now();
+    if (now - lastCopyAtRef.current < COPY_DEBOUNCE_MS) {
+      return;
+    }
+    lastCopyAtRef.current = now;
+
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
@@ -34,11 +39,6 @@ export default function CopyButton({ text }: { text: string }) {
       console.error("Failed to copy", err);
     }
   }, [text]);
-
-  const handleClick = useCallback(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(copyToClipboard, COPY_DEBOUNCE_MS);
-  }, [copyToClipboard]);
 
   return (
     <TooltipProvider>
@@ -53,9 +53,9 @@ export default function CopyButton({ text }: { text: string }) {
             className="text-muted-foreground hover:text-foreground"
           >
             {copied ? (
-              <CheckIcon className="size-3.5" />
+              <CheckIcon className="size-3.5" strokeWidth={2.25} />
             ) : (
-              <CopyIcon className="size-3.5" />
+              <CopyIcon className="size-3.5" strokeWidth={2.25} />
             )}
           </Button>
         </TooltipTrigger>

@@ -4,6 +4,7 @@ import {
   retrieveContext,
   streamAnswer,
 } from "@/lib/rag";
+import { resolveGroqModel } from "@/lib/rag/groq-models";
 
 function extractChunkText(chunk: unknown): string {
   return extractStreamChunk(chunk);
@@ -11,7 +12,7 @@ function extractChunkText(chunk: unknown): string {
 
 export async function POST(req: NextRequest): Promise<Response> {
   try {
-    const { query } = await req.json();
+    const { query, model } = await req.json();
     if (!query) {
       return NextResponse.json(
         { message: "Please provide query in the request body" },
@@ -19,8 +20,11 @@ export async function POST(req: NextRequest): Promise<Response> {
       );
     }
 
+    const modelId = resolveGroqModel(
+      typeof model === "string" ? model : undefined,
+    );
     const { context } = await retrieveContext(query);
-    const llmStream = await streamAnswer(context, query);
+    const llmStream = await streamAnswer(context, query, modelId);
 
     const encoder = new TextEncoder();
     const readable = new ReadableStream({

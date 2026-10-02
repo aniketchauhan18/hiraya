@@ -1,10 +1,15 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ChatStatus } from "ai";
 import {
   PromptInput,
   PromptInputBody,
   PromptInputFooter,
+  PromptInputSelect,
+  PromptInputSelectContent,
+  PromptInputSelectItem,
+  PromptInputSelectTrigger,
+  PromptInputSelectValue,
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputTools,
@@ -12,9 +17,44 @@ import {
 } from "@/components/ai-elements/prompt-input";
 import { useChat } from "@/hooks/useChat";
 
+type ModelOption = { id: string; label: string };
+
+const FALLBACK_MODEL = "openai/gpt-oss-120b";
+
 export default function InputQuery() {
   const [status, setStatus] = useState<ChatStatus | undefined>(undefined);
+  const [models, setModels] = useState<ModelOption[]>([
+    { id: FALLBACK_MODEL, label: "GPT-OSS 120B" },
+  ]);
+  const [selectedModel, setSelectedModel] = useState(FALLBACK_MODEL);
   const { setChatMessages } = useChat();
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/v1/models");
+        if (!res.ok) return;
+        const data = (await res.json()) as {
+          models?: ModelOption[];
+          defaultModel?: string;
+        };
+        if (cancelled || !data.models?.length) return;
+        setModels(data.models);
+        const next =
+          data.defaultModel &&
+          data.models.some((m) => m.id === data.defaultModel)
+            ? data.defaultModel
+            : data.models[0].id;
+        setSelectedModel(next);
+      } catch (err) {
+        console.error("Failed to load Groq models:", err);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleSubmit = async (message: PromptInputMessage) => {
     const userQuery = message.text.trim();
@@ -43,7 +83,7 @@ export default function InputQuery() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ query: userQuery }),
+        body: JSON.stringify({ query: userQuery, model: selectedModel }),
       });
 
       if (!response.ok || !response.body) {
@@ -102,7 +142,23 @@ export default function InputQuery() {
         <PromptInputTextarea placeholder="Ask anything about NIT Hamirpur..." />
       </PromptInputBody>
       <PromptInputFooter>
-        <PromptInputTools />
+        <PromptInputTools>
+          <PromptInputSelect
+            value={selectedModel}
+            onValueChange={setSelectedModel}
+          >
+            <PromptInputSelectTrigger className="w-auto min-w-36 gap-1">
+              <PromptInputSelectValue placeholder="Model" />
+            </PromptInputSelectTrigger>
+            <PromptInputSelectContent>
+              {models.map((m) => (
+                <PromptInputSelectItem key={m.id} value={m.id}>
+                  {m.label}
+                </PromptInputSelectItem>
+              ))}
+            </PromptInputSelectContent>
+          </PromptInputSelect>
+        </PromptInputTools>
         <PromptInputSubmit status={status} />
       </PromptInputFooter>
     </PromptInput>
