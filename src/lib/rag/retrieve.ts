@@ -4,7 +4,8 @@ import { embedQuery } from "./embed";
 
 export const NO_CONTEXT_MARKER = "[NO CONTEXT RETRIEVED]";
 const RETRIEVAL_LIMIT = 5;
-const MAX_DISTANCE = 1.2;
+/** Cosine distance threshold for unit-normalized embeddings (range 0–2). */
+const MAX_DISTANCE = 0.65;
 
 export interface RetrievedChunk {
   id: number;
@@ -22,7 +23,7 @@ export async function retrieveContext(query: string): Promise<{
   const rows = await prisma.$queryRaw<
     { id: number; text: string; distance: number }[]
   >`
-    SELECT id, text, (embedding <-> ${sqlEmbeddings}::vector(384))::float AS distance
+    SELECT id, text, (embedding <=> ${sqlEmbeddings}::vector(384))::float AS distance
     FROM "TextData"
     ORDER BY distance
     LIMIT ${RETRIEVAL_LIMIT}

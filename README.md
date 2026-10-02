@@ -6,6 +6,7 @@ Hiraya is an AI-powered campus guide for **National Institute of Technology Hami
 
 - **NIT Hamirpur–focused AI guide** — Answers are scoped to NIT Hamirpur topics with a hidden chain-of-thought prompt for better reasoning without exposing internal steps.
 - **Streaming chat** — Bot responses stream token-by-token as `text/plain` for a responsive UX.
+- **Groq model picker** — Choose among allowlisted chat LLMs that are currently active on Groq (including OpenAI GPT-OSS open-weight models). Default: `openai/gpt-oss-120b`.
 - **RAG knowledge base** — Text is chunked, embedded, and stored in PostgreSQL with **pgvector**; the top relevant chunks are retrieved per query.
 - **Exam paper / PDF links** — When exam resources exist in the knowledge base, Hiraya can return matching PDF links (e.g. CE 212).
 - **Maintainer-only ingestion** — Only you can add embeddings via a secret-protected API (`EMBEDDINGS_API_SECRET`).
@@ -40,7 +41,7 @@ POST /api/v1/embeddings  (Bearer secret)
 | Database | PostgreSQL + pgvector (e.g. Neon) |
 | ORM | Prisma 7 (`@prisma/adapter-pg`) |
 | Embeddings | Local `@huggingface/transformers` (`sentence-transformers/all-MiniLM-L6-v2`, 384-dim, mean-pooled + normalized) |
-| LLM | Groq via `@langchain/groq` |
+| LLM | Groq via `@langchain/groq` (selectable active chat models; default `openai/gpt-oss-120b`) |
 | Styling | Tailwind CSS 4 |
 | Rate limiting | Upstash Redis (optional, recommended on Vercel) |
 | Deployment | Node.js runtime (onnxruntime-node ships native binaries; excluded from bundling via `serverExternalPackages`) |
@@ -78,7 +79,7 @@ GOOGLE_CLIENT_SECRET=
 
 # LLM
 GROQ_API_KEY=
-GROQ_MODEL=llama-3.1-8b-instant
+GROQ_MODEL=openai/gpt-oss-120b
 
 # Embeddings run locally via @huggingface/transformers — no API key required.
 
@@ -130,10 +131,33 @@ Stream a grounded answer for a user question.
 **Request:**
 
 ```json
-{ "query": "What are the library timings?" }
+{
+  "query": "What are the library timings?",
+  "model": "openai/gpt-oss-120b"
+}
 ```
 
+`model` is optional. If omitted or not allowlisted, the server uses `GROQ_MODEL` (default `openai/gpt-oss-120b`).
+
 **Response:** `text/plain` streamed body.
+
+### `GET /api/v1/models`
+
+Returns allowlisted Groq chat models that are currently active, for the chat UI picker.
+
+**Response:**
+
+```json
+{
+  "models": [
+    { "id": "openai/gpt-oss-120b", "label": "GPT-OSS 120B" },
+    { "id": "openai/gpt-oss-20b", "label": "GPT-OSS 20B" }
+  ],
+  "defaultModel": "openai/gpt-oss-120b"
+}
+```
+
+The list is the intersection of a curated chat allowlist (GPT-OSS, Qwen, etc.) and Groq’s live `GET /openai/v1/models` response (`active: true` only). Non-chat models (Whisper, Guard, TTS) are never included.
 
 ### `POST /api/v1/embeddings` (maintainers only)
 
@@ -184,6 +208,7 @@ NextAuth handlers for Google and credentials sign-in.
 src/
 ├── app/
 │   ├── api/v1/chat/          # Streaming RAG chat
+│   ├── api/v1/models/        # Active allowlisted Groq chat models
 │   ├── api/v1/embeddings/    # Maintainer knowledge ingestion
 │   ├── api/v1/user/          # User registration
 │   ├── auth/                 # Google sign-in entry
